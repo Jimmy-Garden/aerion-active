@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Aerion Active — performance apparel engineered for everyday movement." />
+  <meta name="theme-color" content="#11130f" />
+  <title>Aerion Active — Engineered for Motion</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="announcement">
+    <span>Free express shipping on orders over $120</span>
+    <span class="announcement-divider" aria-hidden="true"></span>
+    <span>30-day performance guarantee</span>
+  </div>
+
+  <header class="site-header" id="top">
+    <a class="brand" href="#top" aria-label="Aerion Active home">
+      <img src="assets/logo.svg" alt="" width="34" height="34" />
+      <span>AERION</span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="#shop" data-filter-link="All">Shop</a>
+      <a href="#shop" data-filter-link="Men">Men</a>
+      <a href="#shop" data-filter-link="Women">Women</a>
+      <a href="#collection">New Season</a>
+      <a href="#about">Our Standard</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" id="searchToggle" type="button" aria-label="Search products">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+      </button>
+      <button class="icon-button cart-button" id="cartToggle" type="button" aria-label="Open shopping bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="search-panel" id="searchPanel" aria-hidden="true">
+    <div class="search-inner">
+      <label for="siteSearch">Search Aerion</label>
+      <div class="search-input-wrap">
+        <input id="siteSearch" type="search" placeholder="Search tops, layers, bottoms…" autocomplete="off" />
+        <button id="searchClose" class="text-button" type="button">Close</button>
+      </div>
+      <p id="searchHint">Try “running”, “hoodie” or “women”.</p>
+    </div>
+  </div>
+
+  <aside class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <nav aria-label="Mobile navigation">
+      <a href="#shop" data-filter-link="All">Shop all</a>
+      <a href="#shop" data-filter-link="Men">Men</a>
+      <a href="#shop" data-filter-link="Women">Women</a>
+      <a href="#collection">New Season</a>
+      <a href="#about">Our Standard</a>
+    </nav>
+    <div class="mobile-menu-footer">Built for training. Refined for every day.</div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">Spring / Summer 2026</span>
+        <h1>Engineered<br />for motion.</h1>
+        <p>Technical apparel that moves cleanly from first mile to final set — lightweight, durable and cut without compromise.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#shop">Shop collection</a>
+          <a class="button button-ghost" href="#collection">Explore the system</a>
+        </div>
+        <div class="hero-meta" aria-label="Collection highlights">
+          <div><strong>4-way</strong><span>stretch</span></div>
+          <div><strong>24h</strong><span>dry comfort</span></div>
+          <div><strong>30d</strong><span>guarantee</span></div>
+        </div>
+      </div>
+      <div class="hero-visual reveal" aria-label="Aerion performance collection">
+        <img src="assets/hero-athlete.svg" alt="Athlete wearing Aerion performance apparel" />
+        <div class="hero-product-tag tag-one">
+          <span>01</span>
+          <div><strong>AirForm Tee</strong><small>Zero-drag jersey</small></div>
+        </div>
+        <div class="hero-product-tag tag-two">
+          <span>02</span>
+          <div><strong>Velocity Short</strong><small>Split-hem mobility</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Product standards">
+      <div><span>01</span><strong>Breathable performance</strong></div>
+      <div><span>02</span><strong>Responsible materials</strong></div>
+      <div><span>03</span><strong>Built for repeat wear</strong></div>
+      <div><span>04</span><strong>Easy global returns</strong></div>
+    </section>
+
+    <section class="shop-section" id="shop">
+      <div class="section-heading reveal">
+        <div>
+          <span class="eyebrow">Performance essentials</span>
+          <h2>Move without noise.</h2>
+        </div>
+        <p>Considered silhouettes, technical fabrics and practical details designed for the rhythm of real training.</p>
+      </div>
+
+      <div class="shop-toolbar reveal">
+        <div class="filter-tabs" id="filterTabs" role="tablist" aria-label="Product categories">
+          <button class="active" type="button" data-filter="All">All</button>
+          <button type="button" data-filter="Men">Men</button>
+          <button type="button" data-filter="Women">Women</button>
+          <button type="button" data-filter="Tops">Tops</button>
+          <button type="button" data-filter="Bottoms">Bottoms</button>
+          <button type="button" data-filter="Layers">Layers</button>
+        </div>
+        <label class="sort-control">
+          <span>Sort</span>
+          <select id="sortSelect" aria-label="Sort products">
+            <option value="featured">Featured</option>
+            <option value="price-low">Price: Low to high</option>
+            <option value="price-high">Price: High to low</option>
+            <option value="newest">Newest</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="product-grid" id="productGrid" aria-live="polite"></div>
+      <p class="empty-state" id="emptyState" hidden>No products match your search.</p>
+    </section>
+
+    <section class="collection-story" id="collection">
+      <div class="collection-image reveal">
+        <img src="assets/collection-layer.svg" alt="Technical training layers in a studio setting" loading="lazy" />
+      </div>
+      <div class="collection-copy reveal">
+        <span class="eyebrow">The Aerion system</span>
+        <h2>One kit.<br />Every condition.</h2>
+        <p>Start with moisture-moving base layers, add adaptable insulation and finish with weather-ready protection. Each piece is designed to work alone or as part of a complete system.</p>
+        <ul>
+          <li><span>01</span>Thermoregulating base fabrics</li>
+          <li><span>02</span>Low-profile seam construction</li>
+          <li><span>03</span>Secure storage without bulk</li>
+        </ul>
+        <a class="inline-link" href="#shop" data-filter-link="Layers">Shop performance layers <span>↗</span></a>
+      </div>
+    </section>
+
+    <section class="category-grid" aria-label="Shop by activity">
+      <a class="category-card reveal" href="#shop" data-search-link="running">
+        <img src="assets/category-run.svg" alt="Running collection" loading="lazy" />
+        <div><span>Run</span><strong>Fast, weightless layers</strong></div>
+      </a>
+      <a class="category-card reveal" href="#shop" data-search-link="training">
+        <img src="assets/category-train.svg" alt="Training collection" loading="lazy" />
+        <div><span>Train</span><strong>Stable, sweat-ready fits</strong></div>
+      </a>
+      <a class="category-card reveal" href="#shop" data-search-link="studio">
+        <img src="assets/category-studio.svg" alt="Studio collection" loading="lazy" />
+        <div><span>Studio</span><strong>Soft stretch, clean lines</strong></div>
+      </a>
+    </section>
+
+    <section class="standard-section" id="about">
+      <div class="standard-copy reveal">
+        <span class="eyebrow">Our standard</span>
+        <h2>Better by design,<br />not by excess.</h2>
+        <p>We focus on the details that improve movement: fabric recovery, seam placement, ventilation and durability. Everything else is edited out.</p>
+      </div>
+      <div class="standard-stats reveal">
+        <div><strong>87%</strong><span>preferred or recycled fibers across the collection</span></div>
+        <div><strong>50+</strong><span>wash-cycle testing before a fabric is approved</span></div>
+        <div><strong>0</strong><span>unnecessary seasonal packaging components</span></div>
+      </div>
+    </section>
+
+    <section class="newsletter reveal">
+      <div>
+        <span class="eyebrow">Aerion Field Notes</span>
+        <h2>Product drops, training stories and no clutter.</h2>
+      </div>
+      <form id="newsletterForm">
+        <label class="sr-only" for="newsletterEmail">Email address</label>
+        <input id="newsletterEmail" type="email" placeholder="Email address" required />
+        <button type="submit" aria-label="Subscribe">Join <span>→</span></button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <a class="brand inverse" href="#top"><img src="assets/logo-light.svg" alt="" width="34" height="34" /><span>AERION</span></a>
+      <p>Performance apparel for movement without distraction.</p>
+    </div>
+    <div class="footer-links">
+      <div><strong>Shop</strong><a href="#shop">New arrivals</a><a href="#shop" data-filter-link="Men">Men</a><a href="#shop" data-filter-link="Women">Women</a></div>
+      <div><strong>Support</strong><a href="#shipping">Shipping</a><a href="#returns">Returns</a><a href="mailto:care@aerionactive.com">Contact</a></div>
+      <div><strong>Company</strong><a href="#about">Our standard</a><a href="#journal">Journal</a><a href="#careers">Careers</a></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Aerion Active</span><span>Privacy · Terms · Accessibility</span></div>
+  </footer>
+
+  <div class="overlay" id="overlay" hidden></div>
+
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-labelledby="cartTitle">
+    <div class="drawer-header">
+      <div><span class="eyebrow">Your selection</span><h2 id="cartTitle">Shopping bag</h2></div>
+      <button class="close-button" id="cartClose" type="button" aria-label="Close shopping bag">×</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-empty" id="cartEmpty">
+      <span>0</span>
+      <h3>Your bag is ready for movement.</h3>
+      <p>Add a piece from the collection to get started.</p>
+      <button class="button button-primary" id="emptyShopButton" type="button">Shop collection</button>
+    </div>
+    <div class="cart-summary" id="cartSummary" hidden>
+      <div><span>Subtotal</span><strong id="cartSubtotal">$0.00</strong></div>
+      <p>Shipping and taxes calculated at checkout.</p>
+      <button class="button button-primary full-width" id="checkoutButton" type="button">Checkout</button>
+    </div>
+  </aside>
+
+  <dialog class="product-modal" id="productModal">
+    <button class="close-button modal-close" id="productModalClose" type="button" aria-label="Close product details">×</button>
+    <div class="product-modal-grid">
+      <div class="modal-image-wrap"><img id="modalImage" src="" alt="" /></div>
+      <div class="modal-content">
+        <span class="eyebrow" id="modalCategory"></span>
+        <h2 id="modalName"></h2>
+        <p class="modal-price" id="modalPrice"></p>
+        <p class="modal-description" id="modalDescription"></p>
+        <div class="option-group">
+          <div class="option-label"><strong>Color</strong><span id="modalColorName"></span></div>
+          <div class="swatches" id="modalColors"></div>
+        </div>
+        <div class="option-group">
+          <div class="option-label"><strong>Size</strong><button type="button" id="sizeGuide">Size guide</button></div>
+          <div class="sizes" id="modalSizes"></div>
+        </div>
+        <button class="button button-primary full-width" id="modalAddToCart" type="button">Add to bag</button>
+        <div class="modal-benefits"><span>Free shipping over $120</span><span>30-day returns</span></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="checkout-modal" id="checkoutModal">
+    <button class="close-button modal-close" id="checkoutClose" type="button" aria-label="Close checkout">×</button>
+    <div class="checkout-layout">
+      <div class="checkout-form-wrap">
+        <span class="eyebrow">Secure checkout</span>
+        <h2>Complete your order</h2>
+        <form id="checkoutForm">
+          <div class="field-grid two">
+            <label>First name<input name="firstName" required /></label>
+            <label>Last name<input name="lastName" required /></label>
+          </div>
+          <label>Email<input type="email" name="email" required /></label>
+          <label>Address<input name="address" required /></label>
+          <div class="field-grid three">
+            <label>City<input name="city" required /></label>
+            <label>Postal code<input name="postal" required /></label>
+            <label>Country<select name="country" required><option value="">Select</option><option>United States</option><option>United Kingdom</option><option>Germany</option><option>France</option><option>Türkiye</option><option>Canada</option></select></label>
+          </div>
+          <div class="payment-box">
+            <div class="option-label"><strong>Payment</strong><span>Encrypted checkout</span></div>
+            <label>Card number<input inputmode="numeric" maxlength="19" placeholder="4242 4242 4242 4242" required /></label>
+            <div class="field-grid two">
+              <label>Expiry<input placeholder="MM / YY" required /></label>
+              <label>CVC<input inputmode="numeric" maxlength="4" placeholder="123" required /></label>
+            </div>
+          </div>
+          <button class="button button-primary full-width" type="submit">Place order</button>
+        </form>
+      </div>
+      <div class="checkout-summary">
+        <h3>Order summary</h3>
+        <div id="checkoutItems"></div>
+        <div class="checkout-total"><span>Total</span><strong id="checkoutTotal"></strong></div>
+      </div>
+    </div>
+    <div class="order-success" id="orderSuccess" hidden>
+      <div class="success-mark">✓</div>
+      <span class="eyebrow">Order confirmed</span>
+      <h2>You're all set.</h2>
+      <p>Your order <strong id="orderNumber"></strong> is being prepared. A confirmation has been sent to your email.</p>
+      <button class="button button-primary" id="continueShopping" type="button">Continue shopping</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
