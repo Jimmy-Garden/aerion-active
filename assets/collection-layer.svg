@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#777f69"/><stop offset="1" stop-color="#30372e"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-opacity=".3"/></filter></defs>
+<rect width="1000" height="1100" fill="url(#g)"/>
+<g opacity=".15" stroke="#fff" fill="none"><path d="M-50 930 850 30M140 1100 1040 200"/><circle cx="840" cy="160" r="220"/></g>
+<g filter="url(#s)">
+  <path d="M257 218c64-39 144-45 215 0l58 85-53 99-20 522H270l-14-521-58-100 59-85Z" fill="#d3d0c5"/>
+  <path d="M318 190c21-66 96-65 118 0l-31 63h-57l-30-63Z" fill="#1e221d"/>
+  <path d="M257 218 143 430l91 48 80-141-57-119ZM472 218l135 202-83 58-101-143 49-117Z" fill="#c4c1b7"/>
+  <path d="M292 531h151l31 398H259l33-398Z" fill="#1a1d19"/>
+  <path d="M686 270c56-35 123-35 177 2l42 74-45 74-17 453H690l-14-452-47-76 57-75Z" fill="#d7ff3f"/>
+  <path d="M732 242c15-47 67-47 84 0l-20 46h-45l-19-46Z" fill="#1e221d"/>
+  <path d="M692 676h146l27 272H666l26-272Z" fill="#222620"/>
+</g>
+</svg>
