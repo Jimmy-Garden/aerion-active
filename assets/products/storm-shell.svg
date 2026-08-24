@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 490">
+  <rect width="400" height="490" fill="#d8e4c8"/>
+  <g opacity=".12" stroke="#11130f" fill="none"><circle cx="340" cy="80" r="60"/><circle cx="60" cy="420" r="45"/></g>
+  <g filter="url(#s)">
+    <path d="M115 105c30-25 140-25 170 0l35 55-32 28v205H112V188l-32-28 35-55Z" fill="#22282e"/>
+  <path d="M200 105v288M145 188h110" stroke="#d7ff3f" stroke-width="2" opacity=".3" fill="none"/>
+  </g>
+  <defs><filter id="s"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-opacity=".18"/></filter></defs>
+</svg>
