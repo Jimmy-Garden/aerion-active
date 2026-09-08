@@ -600,11 +600,9 @@ function initInteractions() {
     scrollToShop();
   }));
 
-  // Footer placeholders had no matching sections, so they used to jump nowhere.
-  $$("[data-info]").forEach(link => link.addEventListener("click", event => {
-    event.preventDefault();
-    showToast(link.dataset.info);
-  }));
+  // Footer placeholders: these sections do not exist yet, so they explain
+  // themselves in place rather than pointing at an anchor that goes nowhere.
+  $$("[data-info]").forEach(button => button.addEventListener("click", () => showToast(button.dataset.info)));
 
   $("#productModalClose").addEventListener("click", () => productModal.close());
   $("#modalAddToCart").addEventListener("click", () => {
