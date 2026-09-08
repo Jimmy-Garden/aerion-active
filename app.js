@@ -169,6 +169,56 @@ const products = [
   }
 ];
 
+const STORAGE_KEY = "aerion-cart";
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const money = value => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+
+const HTML_ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const escapeHtml = value => String(value).replace(/[&<>"']/g, character => HTML_ESCAPES[character]);
+
+const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const scrollToShop = () => $("#shop").scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth" });
+
+// Products carry five sizes today, but never assume an index exists.
+const defaultSize = product => product.sizes[Math.floor(product.sizes.length / 2)] || product.sizes[0];
+
+// The bag is rebuilt from the catalogue rather than trusted as stored: a corrupt,
+// stale or tampered entry can no longer break rendering or fake a price.
+function readStoredCart() {
+  let raw;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch (error) {
+    return [];
+  }
+  if (!raw) return [];
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+
+  const restored = [];
+  parsed.forEach(entry => {
+    if (!entry || typeof entry !== "object") return;
+    const product = products.find(item => item.id === entry.id);
+    if (!product) return;
+    const size = product.sizes.includes(entry.size) ? entry.size : defaultSize(product);
+    const color = product.colors.find(item => item.name === entry.color) || product.colors[0];
+    const quantity = Math.min(99, Math.max(1, Math.floor(Number(entry.quantity)) || 1));
+    const key = `${product.id}-${size}-${color.name}`;
+    const existing = restored.find(item => item.key === key);
+    if (existing) existing.quantity = Math.min(99, existing.quantity + quantity);
+    else restored.push({ key, id: product.id, name: product.name, price: product.price, image: product.image, size, color: color.name, quantity });
+  });
+  return restored;
+}
+
 const state = {
   filter: "All",
   search: "",
@@ -176,14 +226,11 @@ const state = {
   activeProduct: null,
   selectedSize: null,
   selectedColor: null,
-  cart: JSON.parse(localStorage.getItem("aerion-cart") || "[]")
+  cart: readStoredCart()
 };
 
-const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-const money = value => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
-
 const productGrid = $("#productGrid");
+const resultCount = $("#resultCount");
 const emptyState = $("#emptyState");
 const cartDrawer = $("#cartDrawer");
 const overlay = $("#overlay");
@@ -194,10 +241,22 @@ const productModal = $("#productModal");
 const checkoutModal = $("#checkoutModal");
 const toast = $("#toast");
 
+let lastFocused = null;
+
+function rememberFocus() {
+  lastFocused = document.activeElement;
+}
+
+function restoreFocus() {
+  const target = lastFocused;
+  lastFocused = null;
+  if (target && document.contains(target) && typeof target.focus === "function") target.focus();
+}
+
 function renderProducts() {
   const query = state.search.trim().toLowerCase();
-  let items = products.filter(product => {
-    const filterMatch = state.filter === "All" || product.gender === state.filter || product.category === state.filter || (state.filter === "Men" && product.gender === "Unisex") || (state.filter === "Women" && product.gender === "Unisex");
+  const items = products.filter(product => {
+    const filterMatch = state.filter === "All" || product.gender === state.filter || product.category === state.filter || ((state.filter === "Men" || state.filter === "Women") && product.gender === "Unisex");
     const haystack = `${product.name} ${product.gender} ${product.category} ${product.activity} ${product.description}`.toLowerCase();
     return filterMatch && (!query || haystack.includes(query));
   });
@@ -207,45 +266,46 @@ function renderProducts() {
   if (state.sort === "newest") items.sort((a, b) => b.newness - a.newness);
 
   productGrid.innerHTML = items.map(product => `
-    <article class="product-card" data-product-id="${product.id}">
-      <div class="product-image" tabindex="0" role="button" aria-label="View ${product.name}">
-        <img src="${product.image}" alt="${product.name}" loading="lazy" />
-        ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ""}
-        <button class="quick-add" type="button" data-quick-add="${product.id}">Quick add</button>
+    <article class="product-card" data-product-id="${escapeHtml(product.id)}">
+      <div class="product-image">
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />
+        ${product.badge ? `<span class="product-badge">${escapeHtml(product.badge)}</span>` : ""}
+        <button class="quick-add" type="button" data-quick-add="${escapeHtml(product.id)}">Quick add<span class="sr-only"> ${escapeHtml(product.name)}</span></button>
       </div>
       <div class="product-info">
-        <h3>${product.name}</h3>
+        <h3><button class="product-title" type="button" data-open="${escapeHtml(product.id)}">${escapeHtml(product.name)}</button></h3>
         <span class="price">${money(product.price)}</span>
-        <p>${product.gender} · ${product.category}</p>
-        <div class="color-dots" aria-label="${product.colors.length} colors">${product.colors.map(color => `<i style="background:${color.hex}" title="${color.name}"></i>`).join("")}</div>
+        <p>${escapeHtml(product.gender)} · ${escapeHtml(product.category)}</p>
+        <div class="color-dots" aria-label="${product.colors.length} colors">${product.colors.map(color => `<i style="background:${escapeHtml(color.hex)}" title="${escapeHtml(color.name)}"></i>`).join("")}</div>
       </div>
     </article>
   `).join("");
 
   emptyState.hidden = items.length > 0;
+  resultCount.textContent = `${items.length} ${items.length === 1 ? "product" : "products"} shown`;
   bindProductCards();
 }
 
 function bindProductCards() {
-  $$(".product-image", productGrid).forEach(card => {
-    const id = card.closest(".product-card").dataset.productId;
-    card.addEventListener("click", event => {
+  // The image is a mouse convenience only; the title button carries the keyboard
+  // affordance so "Quick add" is never swallowed by an outer key handler.
+  $$(".product-image", productGrid).forEach(image => {
+    image.addEventListener("click", event => {
       if (event.target.closest("[data-quick-add]")) return;
-      openProduct(id);
-    });
-    card.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        openProduct(id);
-      }
+      openProduct(image.closest(".product-card").dataset.productId);
     });
   });
 
-  $$('[data-quick-add]', productGrid).forEach(button => {
+  $$("[data-open]", productGrid).forEach(button => {
+    button.addEventListener("click", () => openProduct(button.dataset.open));
+  });
+
+  $$("[data-quick-add]", productGrid).forEach(button => {
     button.addEventListener("click", event => {
       event.stopPropagation();
       const product = products.find(item => item.id === button.dataset.quickAdd);
-      addToCart(product, product.sizes[2], product.colors[0]);
+      if (!product) return;
+      addToCart(product, defaultSize(product), product.colors[0]);
     });
   });
 }
@@ -254,7 +314,7 @@ function openProduct(id) {
   const product = products.find(item => item.id === id);
   if (!product) return;
   state.activeProduct = product;
-  state.selectedSize = product.sizes[2];
+  state.selectedSize = defaultSize(product);
   state.selectedColor = product.colors[0];
 
   $("#modalImage").src = product.image;
@@ -264,59 +324,67 @@ function openProduct(id) {
   $("#modalPrice").textContent = money(product.price);
   $("#modalDescription").textContent = product.description;
   renderModalOptions();
-  productModal.showModal();
+  openDialog(productModal);
 }
 
 function renderModalOptions() {
   const product = state.activeProduct;
   $("#modalColorName").textContent = state.selectedColor.name;
-  $("#modalColors").innerHTML = product.colors.map(color => `<button type="button" class="swatch ${state.selectedColor.name === color.name ? "active" : ""}" style="background:${color.hex}" aria-label="${color.name}" data-color="${color.name}"></button>`).join("");
-  $("#modalSizes").innerHTML = product.sizes.map(size => `<button type="button" class="size-button ${state.selectedSize === size ? "active" : ""}" data-size="${size}">${size}</button>`).join("");
+  $("#modalColors").innerHTML = product.colors.map(color => `<button type="button" class="swatch ${state.selectedColor.name === color.name ? "active" : ""}" style="background:${escapeHtml(color.hex)}" aria-label="${escapeHtml(color.name)}" aria-pressed="${state.selectedColor.name === color.name}" data-color="${escapeHtml(color.name)}"></button>`).join("");
+  $("#modalSizes").innerHTML = product.sizes.map(size => `<button type="button" class="size-button ${state.selectedSize === size ? "active" : ""}" aria-pressed="${state.selectedSize === size}" data-size="${escapeHtml(size)}">${escapeHtml(size)}</button>`).join("");
 
   $$("[data-color]", $("#modalColors")).forEach(button => button.addEventListener("click", () => {
     state.selectedColor = product.colors.find(color => color.name === button.dataset.color);
     renderModalOptions();
+    $(`[data-color="${CSS.escape(state.selectedColor.name)}"]`, $("#modalColors")).focus();
   }));
   $$("[data-size]", $("#modalSizes")).forEach(button => button.addEventListener("click", () => {
     state.selectedSize = button.dataset.size;
     renderModalOptions();
+    $(`[data-size="${CSS.escape(state.selectedSize)}"]`, $("#modalSizes")).focus();
   }));
 }
 
 function addToCart(product, size, color) {
+  if (!product || !size || !color) return;
   const key = `${product.id}-${size}-${color.name}`;
   const existing = state.cart.find(item => item.key === key);
-  if (existing) existing.quantity += 1;
+  if (existing) existing.quantity = Math.min(99, existing.quantity + 1);
   else state.cart.push({ key, id: product.id, name: product.name, price: product.price, image: product.image, size, color: color.name, quantity: 1 });
   saveCart();
-  showToast(`${product.name} added to your bag`);
+  showToast(`${product.name} · ${color.name} · ${size} added to your bag`);
 }
 
 function saveCart() {
-  localStorage.setItem("aerion-cart", JSON.stringify(state.cart));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cart));
+  } catch (error) {
+    // Storage can be full or blocked (private browsing); the bag still works for this session.
+  }
   renderCart();
 }
 
 function renderCart() {
   const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
   $("#cartCount").textContent = count;
+  $("#cartToggle").setAttribute("aria-label", count === 1 ? "Open shopping bag, 1 item" : `Open shopping bag, ${count} items`);
   cartEmpty.hidden = state.cart.length > 0;
   cartSummary.hidden = state.cart.length === 0;
 
   cartItems.innerHTML = state.cart.map(item => `
-    <div class="cart-item" data-key="${item.key}">
-      <img src="${item.image}" alt="${item.name}" />
+    <div class="cart-item" data-key="${escapeHtml(item.key)}">
+      <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" />
       <div class="cart-item-info">
-        <strong>${item.name}</strong>
-        <span>${item.color} · ${item.size}</span>
+        <strong>${escapeHtml(item.name)}</strong>
+        <span>${escapeHtml(item.color)} · ${escapeHtml(item.size)}</span>
         <span>${money(item.price)}</span>
         <div class="quantity">
-          <button type="button" data-change="-1" aria-label="Decrease quantity">−</button>
+          <button type="button" data-change="-1" aria-label="Decrease quantity of ${escapeHtml(item.name)}">−</button>
           <span>${item.quantity}</span>
-          <button type="button" data-change="1" aria-label="Increase quantity">+</button>
+          <button type="button" data-change="1" aria-label="Increase quantity of ${escapeHtml(item.name)}">+</button>
         </div>
       </div>
-      <button class="remove-item" type="button" data-remove aria-label="Remove ${item.name}">×</button>
+      <button class="remove-item" type="button" data-remove aria-label="Remove ${escapeHtml(item.name)}">×</button>
     </div>
   `).join("");
 
@@ -324,31 +392,62 @@ function renderCart() {
   $("#cartSubtotal").textContent = money(subtotal);
 
   $$("[data-change]", cartItems).forEach(button => button.addEventListener("click", () => {
-    const item = state.cart.find(entry => entry.key === button.closest(".cart-item").dataset.key);
-    item.quantity += Number(button.dataset.change);
-    if (item.quantity <= 0) state.cart = state.cart.filter(entry => entry.key !== item.key);
+    const key = button.closest(".cart-item").dataset.key;
+    const item = state.cart.find(entry => entry.key === key);
+    if (!item) return;
+    item.quantity = Math.min(99, item.quantity + Number(button.dataset.change));
+    if (item.quantity <= 0) state.cart = state.cart.filter(entry => entry.key !== key);
     saveCart();
+    focusCartItem(key);
   }));
 
   $$("[data-remove]", cartItems).forEach(button => button.addEventListener("click", () => {
     const key = button.closest(".cart-item").dataset.key;
     state.cart = state.cart.filter(item => item.key !== key);
     saveCart();
+    $("#cartClose").focus();
   }));
 }
 
+// Re-rendering the list throws away the button that was clicked, so put focus back.
+function focusCartItem(key) {
+  const row = $(`.cart-item[data-key="${CSS.escape(key)}"]`, cartItems);
+  if (row) row.querySelector('[data-change="1"]').focus();
+  else $("#cartClose").focus();
+}
+
 function openCart() {
+  if (cartDrawer.classList.contains("open")) return;
+  rememberFocus();
   overlay.hidden = false;
-  requestAnimationFrame(() => cartDrawer.classList.add("open"));
   cartDrawer.setAttribute("aria-hidden", "false");
+  cartDrawer.inert = false;
   document.body.classList.add("locked");
+  requestAnimationFrame(() => {
+    cartDrawer.classList.add("open");
+    void cartDrawer.offsetWidth;
+    $("#cartClose").focus();
+  });
 }
 
 function closeCart() {
+  if (!cartDrawer.classList.contains("open")) return;
   cartDrawer.classList.remove("open");
   cartDrawer.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("locked");
+  cartDrawer.inert = true;
+  if (!isDialogOpen()) document.body.classList.remove("locked");
   setTimeout(() => { if (!cartDrawer.classList.contains("open")) overlay.hidden = true; }, 420);
+  restoreFocus();
+}
+
+function isDialogOpen() {
+  return productModal.open || checkoutModal.open;
+}
+
+function openDialog(dialog) {
+  rememberFocus();
+  document.body.classList.add("locked");
+  dialog.showModal();
 }
 
 function openCheckout() {
@@ -359,13 +458,13 @@ function openCheckout() {
   const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   $("#checkoutItems").innerHTML = state.cart.map(item => `
     <div class="checkout-summary-item">
-      <img src="${item.image}" alt="${item.name}" />
-      <div><strong>${item.name}</strong><span>${item.color} · ${item.size} · Qty ${item.quantity}</span></div>
+      <img src="${escapeHtml(item.image)}" alt="" loading="lazy" />
+      <div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.color)} · ${escapeHtml(item.size)} · Qty ${item.quantity}</span></div>
       <strong>${money(item.price * item.quantity)}</strong>
     </div>
   `).join("");
   $("#checkoutTotal").textContent = money(subtotal);
-  checkoutModal.showModal();
+  openDialog(checkoutModal);
 }
 
 function showToast(message) {
@@ -375,45 +474,78 @@ function showToast(message) {
   showToast.timer = setTimeout(() => toast.classList.remove("show"), 2400);
 }
 
+function syncFilterTabs(filter) {
+  $$("#filterTabs button").forEach(button => {
+    const isActive = button.dataset.filter === filter;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
 function setFilter(filter) {
   state.filter = filter;
   state.search = "";
   $("#siteSearch").value = "";
-  $$("#filterTabs button").forEach(button => button.classList.toggle("active", button.dataset.filter === filter));
+  syncFilterTabs(filter);
   renderProducts();
-  setTimeout(() => $("#shop").scrollIntoView({ behavior: "smooth" }), 20);
+  setTimeout(scrollToShop, 20);
 }
 
 function setSearch(query) {
   state.search = query;
   state.filter = "All";
-  $$("#filterTabs button").forEach(button => button.classList.toggle("active", button.dataset.filter === "All"));
+  syncFilterTabs("All");
   renderProducts();
 }
 
 function toggleSearch(force) {
   const panel = $("#searchPanel");
-  const shouldOpen = force ?? !panel.classList.contains("open");
+  const isOpen = panel.classList.contains("open");
+  const shouldOpen = force ?? !isOpen;
+  if (shouldOpen === isOpen) return;
+
+  if (shouldOpen) toggleMenu(false);
   panel.classList.toggle("open", shouldOpen);
   panel.setAttribute("aria-hidden", String(!shouldOpen));
-  if (shouldOpen) setTimeout(() => $("#siteSearch").focus(), 350);
+  panel.inert = !shouldOpen;
+  $("#searchToggle").setAttribute("aria-expanded", String(shouldOpen));
+
+  if (shouldOpen) {
+    rememberFocus();
+    setTimeout(() => $("#siteSearch").focus(), reducedMotion() ? 0 : 350);
+  } else {
+    restoreFocus();
+  }
 }
 
 function toggleMenu(force) {
   const menu = $("#mobileMenu");
   const button = $("#menuToggle");
-  const shouldOpen = force ?? !menu.classList.contains("open");
+  const isOpen = menu.classList.contains("open");
+  const shouldOpen = force ?? !isOpen;
+  if (shouldOpen === isOpen) return;
+
   menu.classList.toggle("open", shouldOpen);
   button.classList.toggle("active", shouldOpen);
   button.setAttribute("aria-expanded", String(shouldOpen));
+  button.setAttribute("aria-label", shouldOpen ? "Close menu" : "Open menu");
   menu.setAttribute("aria-hidden", String(!shouldOpen));
+  menu.inert = !shouldOpen;
   document.body.classList.toggle("locked", shouldOpen);
+
+  if (shouldOpen) {
+    rememberFocus();
+    void menu.offsetWidth;
+    menu.querySelector("a").focus();
+  } else {
+    restoreFocus();
+  }
 }
 
 function initInteractions() {
   $("#cartToggle").addEventListener("click", openCart);
   $("#cartClose").addEventListener("click", closeCart);
-  $("#emptyShopButton").addEventListener("click", closeCart);
+  $("#emptyShopButton").addEventListener("click", () => { closeCart(); scrollToShop(); });
   overlay.addEventListener("click", closeCart);
   $("#checkoutButton").addEventListener("click", openCheckout);
   $("#searchToggle").addEventListener("click", () => toggleSearch());
@@ -428,21 +560,31 @@ function initInteractions() {
     if (event.key === "Enter") {
       event.preventDefault();
       toggleSearch(false);
-      $("#shop").scrollIntoView({ behavior: "smooth" });
+      scrollToShop();
     }
   });
 
   $$("#filterTabs button").forEach(button => button.addEventListener("click", () => setFilter(button.dataset.filter)));
   $("#sortSelect").addEventListener("change", event => { state.sort = event.target.value; renderProducts(); });
 
-  $$('[data-filter-link]').forEach(link => link.addEventListener("click", () => {
-    setFilter(link.dataset.filterLink);
+  $$("[data-filter-link]").forEach(link => link.addEventListener("click", event => {
+    event.preventDefault();
     toggleMenu(false);
+    setFilter(link.dataset.filterLink);
   }));
-  $$('[data-search-link]').forEach(link => link.addEventListener("click", () => {
+  $$("[data-search-link]").forEach(link => link.addEventListener("click", event => {
+    event.preventDefault();
     const query = link.dataset.searchLink;
     setSearch(query);
     $("#siteSearch").value = query;
+    $("#searchHint").textContent = `Showing matches for “${query}”`;
+    scrollToShop();
+  }));
+
+  // Footer placeholders had no matching sections, so they used to jump nowhere.
+  $$("[data-info]").forEach(link => link.addEventListener("click", event => {
+    event.preventDefault();
+    showToast(link.dataset.info);
   }));
 
   $("#productModalClose").addEventListener("click", () => productModal.close());
@@ -463,10 +605,11 @@ function initInteractions() {
     state.cart = [];
     saveCart();
     event.currentTarget.reset();
+    $("#continueShopping").focus();
   });
   $("#continueShopping").addEventListener("click", () => {
     checkoutModal.close();
-    $("#shop").scrollIntoView({ behavior: "smooth" });
+    scrollToShop();
   });
 
   $("#newsletterForm").addEventListener("submit", event => {
@@ -475,20 +618,31 @@ function initInteractions() {
     event.currentTarget.reset();
   });
 
-  [productModal, checkoutModal].forEach(dialog => dialog.addEventListener("click", event => {
-    if (event.target === dialog) dialog.close();
-  }));
+  [productModal, checkoutModal].forEach(dialog => {
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      if (!cartDrawer.classList.contains("open") && !isDialogOpen()) document.body.classList.remove("locked");
+      restoreFocus();
+    });
+  });
 
+  // Native dialogs close themselves on Escape; the panels below need help.
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-      closeCart();
-      toggleSearch(false);
-      toggleMenu(false);
-    }
+    if (event.key !== "Escape" || isDialogOpen()) return;
+    closeCart();
+    toggleSearch(false);
+    toggleMenu(false);
   });
 }
 
 function initReveal() {
+  const elements = $$(".reveal");
+  if (reducedMotion() || !("IntersectionObserver" in window)) {
+    elements.forEach(element => element.classList.add("visible"));
+    return;
+  }
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -497,10 +651,18 @@ function initReveal() {
       }
     });
   }, { threshold: .12 });
-  $$(".reveal").forEach(element => observer.observe(element));
+  elements.forEach(element => observer.observe(element));
+}
+
+function initBackToTop() {
+  const button = $("#backToTop");
+  const update = () => { button.hidden = window.scrollY < 480; };
+  window.addEventListener("scroll", update, { passive: true });
+  update();
 }
 
 renderProducts();
 renderCart();
 initInteractions();
 initReveal();
+initBackToTop();
