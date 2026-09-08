@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 490">
+  <rect width="400" height="490" fill="#d5d9de"/>
+  <g opacity=".12" stroke="#11130f" fill="none"><circle cx="340" cy="80" r="60"/><circle cx="60" cy="420" r="45"/></g>
+  <g filter="url(#s)">
+    <path d="M120 110c30-28 130-28 160 0v15c20-8 45-5 60 15l25 45-30 25-20-30v195H145V160l-20 30-30-25 25-45c15-20 40-23 60-15v-15Z" fill="#1d2228"/>
+  <path d="M155 95c15-25 75-25 90 0" stroke="#1d2228" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <ellipse cx="200" cy="200" rx="35" ry="28" fill="#d7ff3f" opacity=".15"/>
+  </g>
+  <defs><filter id="s"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-opacity=".18"/></filter></defs>
+</svg>

@@ -6,6 +6,10 @@
   <meta name="description" content="Aerion Active — performance apparel engineered for everyday movement." />
   <meta name="theme-color" content="#11130f" />
   <title>Aerion Active — Engineered for Motion</title>
+  <script>document.documentElement.classList.add("js");</script>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Aerion Active — Engineered for Motion" />
+  <meta property="og:description" content="Performance apparel engineered for everyday movement." />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
   <script src="app.js" defer></script>
@@ -32,20 +36,20 @@
     </nav>
 
     <div class="header-actions">
-      <button class="icon-button" id="searchToggle" type="button" aria-label="Search products">
+      <button class="icon-button" id="searchToggle" type="button" aria-label="Search products" aria-expanded="false" aria-controls="searchPanel">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
       </button>
       <button class="icon-button cart-button" id="cartToggle" type="button" aria-label="Open shopping bag">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg>
         <span class="cart-count" id="cartCount">0</span>
       </button>
-      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false">
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span>
       </button>
     </div>
   </header>
 
-  <div class="search-panel" id="searchPanel" aria-hidden="true">
+  <div class="search-panel" id="searchPanel" aria-hidden="true" inert>
     <div class="search-inner">
       <label for="siteSearch">Search Aerion</label>
       <div class="search-input-wrap">
@@ -56,7 +60,7 @@
     </div>
   </div>
 
-  <aside class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <aside class="mobile-menu" id="mobileMenu" aria-hidden="true" inert>
     <nav aria-label="Mobile navigation">
       <a href="#shop" data-filter-link="All">Shop all</a>
       <a href="#shop" data-filter-link="Men">Men</a>
@@ -113,13 +117,13 @@
       </div>
 
       <div class="shop-toolbar reveal">
-        <div class="filter-tabs" id="filterTabs" role="tablist" aria-label="Product categories">
-          <button class="active" type="button" data-filter="All">All</button>
-          <button type="button" data-filter="Men">Men</button>
-          <button type="button" data-filter="Women">Women</button>
-          <button type="button" data-filter="Tops">Tops</button>
-          <button type="button" data-filter="Bottoms">Bottoms</button>
-          <button type="button" data-filter="Layers">Layers</button>
+        <div class="filter-tabs" id="filterTabs" role="group" aria-label="Product categories">
+          <button class="active" type="button" data-filter="All" aria-pressed="true">All</button>
+          <button type="button" data-filter="Men" aria-pressed="false">Men</button>
+          <button type="button" data-filter="Women" aria-pressed="false">Women</button>
+          <button type="button" data-filter="Tops" aria-pressed="false">Tops</button>
+          <button type="button" data-filter="Bottoms" aria-pressed="false">Bottoms</button>
+          <button type="button" data-filter="Layers" aria-pressed="false">Layers</button>
         </div>
         <label class="sort-control">
           <span>Sort</span>
@@ -132,7 +136,8 @@
         </label>
       </div>
 
-      <div class="product-grid" id="productGrid" aria-live="polite"></div>
+      <p class="sr-only" id="resultCount" role="status" aria-live="polite"></p>
+      <div class="product-grid" id="productGrid"></div>
       <p class="empty-state" id="emptyState" hidden>No products match your search.</p>
     </section>
 
@@ -188,7 +193,7 @@
       </div>
       <form id="newsletterForm">
         <label class="sr-only" for="newsletterEmail">Email address</label>
-        <input id="newsletterEmail" type="email" placeholder="Email address" required />
+        <input id="newsletterEmail" type="email" autocomplete="email" placeholder="Email address" required />
         <button type="submit" aria-label="Subscribe">Join <span>→</span></button>
       </form>
     </section>
@@ -201,15 +206,15 @@
     </div>
     <div class="footer-links">
       <div><strong>Shop</strong><a href="#shop">New arrivals</a><a href="#shop" data-filter-link="Men">Men</a><a href="#shop" data-filter-link="Women">Women</a></div>
-      <div><strong>Support</strong><a href="#shipping">Shipping</a><a href="#returns">Returns</a><a href="mailto:care@aerionactive.com">Contact</a></div>
-      <div><strong>Company</strong><a href="#about">Our standard</a><a href="#journal">Journal</a><a href="#careers">Careers</a></div>
+      <div><strong>Support</strong><button type="button" data-info="Shipping details are published at checkout.">Shipping</button><button type="button" data-info="Returns are open for 30 days — details at checkout.">Returns</button><a href="mailto:care@aerionactive.com">Contact</a></div>
+      <div><strong>Company</strong><a href="#about">Our standard</a><button type="button" data-info="The Aerion journal is coming soon.">Journal</button><button type="button" data-info="No open roles right now — check back soon.">Careers</button></div>
     </div>
     <div class="footer-bottom"><span>© 2026 Aerion Active</span><span>Privacy · Terms · Accessibility</span></div>
   </footer>
 
   <div class="overlay" id="overlay" hidden></div>
 
-  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-labelledby="cartTitle">
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-labelledby="cartTitle" inert>
     <div class="drawer-header">
       <div><span class="eyebrow">Your selection</span><h2 id="cartTitle">Shopping bag</h2></div>
       <button class="close-button" id="cartClose" type="button" aria-label="Close shopping bag">×</button>
@@ -231,7 +236,7 @@
   <dialog class="product-modal" id="productModal">
     <button class="close-button modal-close" id="productModalClose" type="button" aria-label="Close product details">×</button>
     <div class="product-modal-grid">
-      <div class="modal-image-wrap"><img id="modalImage" src="" alt="" /></div>
+      <div class="modal-image-wrap"><img id="modalImage" alt="" /></div>
       <div class="modal-content">
         <span class="eyebrow" id="modalCategory"></span>
         <h2 id="modalName"></h2>
@@ -259,22 +264,22 @@
         <h2>Complete your order</h2>
         <form id="checkoutForm">
           <div class="field-grid two">
-            <label>First name<input name="firstName" required /></label>
-            <label>Last name<input name="lastName" required /></label>
+            <label>First name<input name="firstName" autocomplete="given-name" required /></label>
+            <label>Last name<input name="lastName" autocomplete="family-name" required /></label>
           </div>
-          <label>Email<input type="email" name="email" required /></label>
-          <label>Address<input name="address" required /></label>
+          <label>Email<input type="email" name="email" autocomplete="email" required /></label>
+          <label>Address<input name="address" autocomplete="street-address" required /></label>
           <div class="field-grid three">
-            <label>City<input name="city" required /></label>
-            <label>Postal code<input name="postal" required /></label>
-            <label>Country<select name="country" required><option value="">Select</option><option>United States</option><option>United Kingdom</option><option>Germany</option><option>France</option><option>Türkiye</option><option>Canada</option></select></label>
+            <label>City<input name="city" autocomplete="address-level2" required /></label>
+            <label>Postal code<input name="postal" autocomplete="postal-code" required /></label>
+            <label>Country<select name="country" autocomplete="country-name" required><option value="">Select</option><option>United States</option><option>United Kingdom</option><option>Germany</option><option>France</option><option>Türkiye</option><option>Canada</option></select></label>
           </div>
           <div class="payment-box">
             <div class="option-label"><strong>Payment</strong><span>Encrypted checkout</span></div>
-            <label>Card number<input inputmode="numeric" maxlength="19" placeholder="4242 4242 4242 4242" required /></label>
+            <label>Card number<input name="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4242 4242 4242 4242" required /></label>
             <div class="field-grid two">
-              <label>Expiry<input placeholder="MM / YY" required /></label>
-              <label>CVC<input inputmode="numeric" maxlength="4" placeholder="123" required /></label>
+              <label>Expiry<input name="cardExpiry" autocomplete="cc-exp" placeholder="MM / YY" required /></label>
+              <label>CVC<input name="cardCvc" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" required /></label>
             </div>
           </div>
           <button class="button button-primary full-width" type="submit">Place order</button>
@@ -296,5 +301,9 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <a class="back-to-top" id="backToTop" href="#top" aria-label="Back to top" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </a>
 </body>
 </html>
