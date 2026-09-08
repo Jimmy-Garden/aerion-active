@@ -158,7 +158,7 @@ button { color: inherit; }
 .sort-control select { border: 0; outline: 0; background: transparent; color: var(--ink); font-weight: 700; cursor: pointer; }
 .product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 34px 16px; }
 .product-card { min-width: 0; }
-.product-image { aspect-ratio: .82; position: relative; overflow: hidden; background: #e5e2d8; cursor: pointer; }
+.product-image { aspect-ratio: .28; position: relative; overflow: hidden; background: #e5e2d8; cursor: pointer; }
 .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s var(--ease); }
 .product-card:hover .product-image img { transform: scale(1.035); }
 .product-badge { position: absolute; top: 12px; left: 12px; background: var(--white); padding: 7px 9px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; }
@@ -383,10 +383,15 @@ button { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  /* `transition: none`, not a near-zero duration. `transition-property`
+     defaults to `all`, so a 0.01ms duration still animates every property —
+     including the inherited `visibility` the off-canvas panels rely on. That
+     left panel contents computing as hidden on the frame they open, which
+     silently made them unfocusable. */
   *, *::before, *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
   .js .reveal { opacity: 1; transform: none; }

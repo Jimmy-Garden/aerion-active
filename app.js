@@ -242,6 +242,7 @@ const checkoutModal = $("#checkoutModal");
 const toast = $("#toast");
 
 let lastFocused = null;
+let overlayTimer = null;
 
 function rememberFocus() {
   lastFocused = document.activeElement;
@@ -398,7 +399,7 @@ function renderCart() {
     item.quantity = Math.min(99, item.quantity + Number(button.dataset.change));
     if (item.quantity <= 0) state.cart = state.cart.filter(entry => entry.key !== key);
     saveCart();
-    focusCartItem(key);
+    focusCartItem(key, button.dataset.change);
   }));
 
   $$("[data-remove]", cartItems).forEach(button => button.addEventListener("click", () => {
@@ -410,15 +411,17 @@ function renderCart() {
 }
 
 // Re-rendering the list throws away the button that was clicked, so put focus back.
-function focusCartItem(key) {
+function focusCartItem(key, change) {
   const row = $(`.cart-item[data-key="${CSS.escape(key)}"]`, cartItems);
-  if (row) row.querySelector('[data-change="1"]').focus();
+  const control = row && row.querySelector(`[data-change="${CSS.escape(change)}"]`);
+  if (control) control.focus();
   else $("#cartClose").focus();
 }
 
 function openCart() {
   if (cartDrawer.classList.contains("open")) return;
   rememberFocus();
+  clearTimeout(overlayTimer);
   overlay.hidden = false;
   cartDrawer.setAttribute("aria-hidden", "false");
   cartDrawer.inert = false;
@@ -436,8 +439,20 @@ function closeCart() {
   cartDrawer.setAttribute("aria-hidden", "true");
   cartDrawer.inert = true;
   if (!isDialogOpen()) document.body.classList.remove("locked");
-  setTimeout(() => { if (!cartDrawer.classList.contains("open")) overlay.hidden = true; }, 420);
+  releaseOverlay();
   restoreFocus();
+}
+
+// The overlay blocks clicks, so it must not outlive the drawer's slide-out.
+// Reading the real transition duration keeps the two in step under
+// prefers-reduced-motion, where the slide-out is effectively instant.
+function releaseOverlay() {
+  const durations = getComputedStyle(cartDrawer).transitionDuration.split(",").map(value => parseFloat(value) || 0);
+  const slideOut = Math.max(0, ...durations) * 1000;
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => {
+    if (!cartDrawer.classList.contains("open")) overlay.hidden = true;
+  }, slideOut);
 }
 
 function isDialogOpen() {
@@ -504,14 +519,18 @@ function toggleSearch(force) {
   const shouldOpen = force ?? !isOpen;
   if (shouldOpen === isOpen) return;
 
+  // Record the opener before closing the menu: toggleMenu hands focus back to
+  // its own toggle, which would otherwise be mistaken for what opened search.
+  const opener = shouldOpen ? document.activeElement : null;
   if (shouldOpen) toggleMenu(false);
+
   panel.classList.toggle("open", shouldOpen);
   panel.setAttribute("aria-hidden", String(!shouldOpen));
   panel.inert = !shouldOpen;
   $("#searchToggle").setAttribute("aria-expanded", String(shouldOpen));
 
   if (shouldOpen) {
-    rememberFocus();
+    lastFocused = opener;
     setTimeout(() => $("#siteSearch").focus(), reducedMotion() ? 0 : 350);
   } else {
     restoreFocus();
