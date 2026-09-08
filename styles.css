@@ -138,7 +138,7 @@ button { color: inherit; }
 .hero-product-tag div { display: grid; }
 .hero-product-tag strong { font-size: 12px; }
 .hero-product-tag small { color: var(--muted); font-size: 10px; margin-top: 2px; }
-.tag-one { top: 22%; left: 7%; }
+.tag-one { top: 22%; left: 84%; }
 .tag-two { right: 6%; bottom: 16%; }
 
 .trust-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -306,7 +306,7 @@ button { color: inherit; }
 .back-to-top svg { width: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
-.reveal .visible { opacity: 1; transform: none; }
+.reveal.visible { opacity: 1; transform: none; }
 
 @media (max-width: 1100px) {
   .desktop-nav { gap: 20px; }
